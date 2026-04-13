@@ -15,7 +15,7 @@ def callback(channel):
     if GPIO.input(channel):
         print("Water Detected!")
     else:
-        print("Water Detected!")
+        print("No Water Detected!")
 
 # ---- 3. Event Detection ----
 # Let us know when the pin goes HIGH or LOW
