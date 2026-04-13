@@ -10,19 +10,9 @@ from email.message import EmailMessage
 # Soil Sensor Part
 import RPi.GPIO as GPIO
 import time
-import schedule
 
 
 # ---- 2. Function Definition ----
-
-# Callback function to be called when the sensor detects a change
-def callback(channel):
-    if GPIO.input(channel):
-        subject = "Soil Status Report: Wet"
-        body = """The soil is currently wet.
-        No watering needed."""
-        send_email(subject, body)
-
 
 # Function to set up the email server
 def set_server(from_email, password):
@@ -75,13 +65,13 @@ def job():
     global channel
     is_wet = GPIO.input(channel)
     if is_wet:
-        subject = "Soil Status Report: Wet"
-        body = """The soil is currently wet.
-        No watering needed."""
-    else:
         subject = "Soil Status Report: Dry"
         body = """The soil is currently dry.
         Watering is needed."""
+    else:
+        subject = "Soil Status Report: Wet"
+        body = """The soil is currently wet.
+        No watering needed."""
 
     send_email(subject, body)
 
@@ -96,20 +86,13 @@ channel = 4
 GPIO.setup(channel, GPIO.IN)
 
 # ---- 5. The Main Program ----
+
+# Set the address information
 from_email = "1520087861@qq.com"
 password = "xnwpqldbsshzifdg"
 to_email = "2907517155@qq.com"
 
-# Set the job to be done twice a day
-schedule.every().day.at("10:00").do(job)
-schedule.every().day.at("18:00").do(job)
-
-# Event detection
-# Let us know when the pin goes HIGH or LOW
-GPIO.add_event_detect(channel, GPIO.BOTH, bouncetime = 300)
-# Assign function to GPIO PIN, Run function on change
-GPIO.add_event_callback(channel, callback)
-
 while True:
-    schedule.run_pending()
-    time.sleep(1)
+    job()
+    # The program will send you an email per 6 hours
+    time.sleep(6 * 60 * 60)
