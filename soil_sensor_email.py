@@ -10,7 +10,6 @@ from email.message import EmailMessage
 # Soil Sensor Part
 import RPi.GPIO as GPIO
 import time
-import schedule
 
 
 # ---- 2. Function Definition ----
@@ -100,10 +99,6 @@ from_email = "1520087861@qq.com"
 password = "xnwpqldbsshzifdg"
 to_email = "2907517155@qq.com"
 
-# Set the job to be done twice a day
-schedule.every().day.at("10:00").do(job)
-schedule.every().day.at("18:00").do(job)
-
 # Event detection
 # Let us know when the pin goes HIGH or LOW
 GPIO.add_event_detect(channel, GPIO.BOTH, bouncetime = 300)
@@ -111,5 +106,5 @@ GPIO.add_event_detect(channel, GPIO.BOTH, bouncetime = 300)
 GPIO.add_event_callback(channel, callback)
 
 while True:
-    schedule.run_pending()
-    time.sleep(1)
+    job()
+    time.sleep(6 * 60 * 60)
