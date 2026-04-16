@@ -55,6 +55,7 @@ def send_email(subject, body):
     # Send the message
     server.send_message(msg)
     print("<Email sent successfully>")
+    print("<Time: %d:00>" % (get_current_hour()))
 
     # Disconnect from the server
     server.quit()
@@ -62,18 +63,31 @@ def send_email(subject, body):
 
 # Function to report status everyday at regular intervals
 def job():
+    # Declare and initialize the varibles needed
     global channel
-    is_wet = GPIO.input(channel)
-    if is_wet:
-        subject = "Soil Status Report: Dry"
-        body = """The soil is currently dry.
-        Watering is needed."""
+    is_dry = GPIO.input(channel)
+    hour = get_current_hour()
+
+    if is_dry:
+        subject = "Soil Status Report"
+        body = "Time:   %d:00\nStatus: Dry\nNotice: You need to water your plant now!" % (hour)
     else:
-        subject = "Soil Status Report: Wet"
-        body = """The soil is currently wet.
-        No watering needed."""
+        subject = "Soil Status Report"
+        body = "Time:   %d:00\nStatus: Wet\nNotice: Good! Your plant has enough water." % (hour)
 
     send_email(subject, body)
+
+
+# Function to get the current hour of time
+def get_current_hour():
+    # Seconds since epoch
+    seconds = time.time()
+    # Format the time
+    results = time.localtime(seconds)
+    # Get current hour
+    current_hour = results.tm_hour + 8
+
+    return current_hour
 
 
 # ---- 4. Configure Soil Sensor ----
@@ -92,7 +106,16 @@ from_email = "1520087861@qq.com"
 password = "xnwpqldbsshzifdg"
 to_email = "2907517155@qq.com"
 
+# Hours to get the status and send email
+email_hours = [8, 10, 12, 14, 16, 18, 20]
+# A flag
+last_sent_hour = -1
+
 while True:
-    job()
-    # The program will send you an email per 6 hours
-    time.sleep(6 * 60 * 60)
+    # Do the job (send status email) when it is the specific time
+    current_hour = get_current_hour()
+    for hour in email_hours:
+        if current_hour == hour and current_hour != last_sent_hour:
+            last_sent_hour = current_hour
+            job()
+    time.sleep(60)
