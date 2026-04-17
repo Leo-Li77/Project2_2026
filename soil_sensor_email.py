@@ -1,7 +1,7 @@
 # AUTHOR: Leo Li
 # DATE: 2026/4/13
 
-# ---- 1. Import Libraries ----
+# --- 1. Import Libraries ---
 
 # Email Part
 import smtplib
@@ -12,7 +12,7 @@ import RPi.GPIO as GPIO
 import time
 
 
-# ---- 2. Function Definition ----
+# --- 2. Function Definition ---
 
 # Function to set up the email server
 def set_server(from_email, password):
@@ -70,10 +70,24 @@ def job():
 
     if is_dry:
         subject = "Soil Status Report"
-        body = "Time:   %d:00\nStatus: Dry\nNotice: You need to water your plant now!" % (hour)
+        body = """
+        ---------------------------------------------
+                     Soil Status Report
+        ---------------------------------------------
+        [Time]\t\t<%d:00>\n
+        [Status]\t<Dry>\n
+        [Notice]\t<You need to water your plant now!>
+        """ % (hour)
     else:
         subject = "Soil Status Report"
-        body = "Time:   %d:00\nStatus: Wet\nNotice: Good! Your plant has enough water." % (hour)
+        body = """
+        ----------------------------------------------
+                     Soil Status Report
+        ----------------------------------------------
+        [Time]\t\t<%d:00>\n
+        [Status]\t<Wet>\n
+        [Notice]\t<Good! Your plant has enough water.>
+        """ % (hour)
 
     send_email(subject, body)
 
@@ -84,13 +98,13 @@ def get_current_hour():
     seconds = time.time()
     # Format the time
     results = time.localtime(seconds)
-    # Get current hour
-    current_hour = results.tm_hour + 8
+    # Get current hour (Chinese, Beijing)
+    current_hour = results.tm_hour
 
     return current_hour
 
 
-# ---- 4. Configure Soil Sensor ----
+# --- 3. Configure Soil Sensor ---
 
 # Set the GPIO mode
 GPIO.setmode(GPIO.BCM)
@@ -99,7 +113,7 @@ GPIO.setmode(GPIO.BCM)
 channel = 4
 GPIO.setup(channel, GPIO.IN)
 
-# ---- 5. The Main Program ----
+# --- 4. The Main Program ---
 
 # Set the address information
 from_email = "1520087861@qq.com"
@@ -107,9 +121,29 @@ password = "xnwpqldbsshzifdg"
 to_email = "2907517155@qq.com"
 
 # Hours to get the status and send email
-email_hours = [8, 10, 12, 14, 16, 18, 20]
+email_hours = [8, 12, 16, 20]
 # A flag
 last_sent_hour = -1
+
+# Program Title
+print("===================")
+print(" Soil Sensor Email ")
+print("===================")
+
+# Introduction of the program
+print("--------------")
+print(" Introduction ")
+print("--------------")
+print("This is a program aimed to remind you")
+print("of watering your plant according to the")
+print("moisture content in the soil. It will")
+print("send you emails in certain time everyday")
+print("containing the soil status and the time.")
+
+print("-----------")
+print(" Main Part ")
+print("-----------")
+print("<Program has started>")
 
 while True:
     # Do the job (send status email) when it is the specific time
